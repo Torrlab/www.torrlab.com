@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Home in Three.js</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script>
+        // Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const light = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(light);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(10, 10, 10);
+        scene.add(directionalLight);
+
+        // Floor
+        const floorGeometry = new THREE.PlaneGeometry(50, 50);
+        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // Walls
+        function createWall(x, y, z, width, height, depth) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const wall = new THREE.Mesh(geometry, material);
+            wall.position.set(x, y, z);
+            scene.add(wall);
+        }
+
+        const wallHeight = 5;
+        createWall(0, wallHeight / 2, -10, 20, wallHeight, 0.5); // Back wall
+        createWall(0, wallHeight / 2, 10, 20, wallHeight, 0.5);  // Front wall
+        createWall(-10, wallHeight / 2, 0, 0.5, wallHeight, 20); // Left wall
+        createWall(10, wallHeight / 2, 0, 0.5, wallHeight, 20); // Right wall
+
+        // Rooms (5 rooms, one bigger than the others)
+        createWall(-5, wallHeight / 2, -2.5, 0.5, wallHeight, 15); // Internal left wall
+        createWall(5, wallHeight / 2, -2.5, 0.5, wallHeight, 15);  // Internal right wall
+        createWall(0, wallHeight / 2, 2.5, 10, wallHeight, 0.5);  // Internal middle wall
+
+        // Main Gate
+        const gateGeometry = new THREE.BoxGeometry(4, 3, 0.5);
+        const gateMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+        const gate = new THREE.Mesh(gateGeometry, gateMaterial);
+        gate.position.set(0, 1.5, 10);
+        scene.add(gate);
+
+        // Furniture (Table, Chairs, Bed)
+        function createBox(x, y, z, width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(x, y, z);
+            scene.add(box);
+        }
+
+        // Beds
+        createBox(-7, 0.5, -5, 3, 1, 6, 0x8B0000);
+        createBox(7, 0.5, -5, 3, 1, 6, 0x8B0000);
+
+        // Tables
+        createBox(-7, 1, 3, 3, 1, 2, 0xA0522D);
+        createBox(7, 1, 3, 3, 1, 2, 0xA0522D);
+
+        // Chairs
+        createBox(-5, 1, 3, 1, 2, 1, 0x808080);
+        createBox(-9, 1, 3, 1, 2, 1, 0x808080);
+        createBox(5, 1, 3, 1, 2, 1, 0x808080);
+        createBox(9, 1, 3, 1, 2, 1, 0x808080);
+
+        // Camera Position
+        camera.position.set(0, 10, 20);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
